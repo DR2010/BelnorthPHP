@@ -1,6 +1,8 @@
 <?php
     /*
-    Template Name: Belnorth Grading Input 
+    Template Name: Belnorth Preseason Form 
+    Requested on: 18-Jan-2018
+    Create a new table "preseason"
     */
     get_header();
 
@@ -26,48 +28,6 @@
             {
                 var val=form.agegroupselected.options[form.agegroupselected.options.selectedIndex].value;
                 self.location='?page_id=1410&agegroupselected=' + val ;
-            }
-            /*
-            ---------------------------------------------------
-            Calculate the Age Group based on the date of birth
-            ---------------------------------------------------
-            */
-            function setagegroupdobOLD( invalue )
-            {
-                var objagegroupdob = document.getElementById("agegroupdob");
-
-                var parts =invalue.split('-');
-                var partsB =invalue.split('/');
-
-                // get birth year
-                var year = parts[0];
-
-                substring = "/";
-                if ( invalue.indexOf(substring) >= 0)
-                {
-                    year = parts[2];
-                }
-
-                // get next years 2018 age group
-                var agegrnextyear = 2018-year;
-
-                var strU = "U";
-
-                if (agegrnextyear > 18) 
-                {
-                    strU = "";
-                    agegrnextyear = "Adult";
-                }
-                if (agegrnextyear < 5) 
-                {
-                    agegrnextyear = 5;
-                }
-
-                var uage = strU.concat(agegrnextyear);
-
-                // Set Calculated Age Group value
-                objagegroupdob.value = uage;
-
             }
 
             /*
@@ -333,26 +293,51 @@
     <body>
         <?php
 
+            // Competition
+            $competitionmanualid = "BELNORTHPRESEASON2018";
+
+            // Registration
+            $agegroupdob = $_POST['agegroupdob'];
+            $haveyouregistered = $_POST['haveyouregistered'];
+
+            // Player Details
             $ffanumber = $_POST['ffanumber'];
-            $firstname = $_POST['firstname'];
             $lastname = $_POST['lastname'];
+            $firstname = $_POST['firstname'];
             $dateofbirth = $_POST['dateofbirth'];
             $gender = $_POST['gender'];
-            $trialagegroup = $_POST['trialagegroup'];
-            $trialopengirls = $_POST['trialopengirls'];
-            $preferredposition = $_POST['preferredposition'];
-            $haveyouregistered = $_POST['haveyouregistered'];
             $emailaddress = $_POST['emailaddress'];
-
-            $posBack = $_POST['posBack'];
-            $posMidfield = $_POST['posMidfield'];
-            $posAttack = $_POST['posAttack'];
-            $posKeeper = $_POST['posKeeper'];
-            $agegroupdob = $_POST['agegroupdob'];
             $mobile = $_POST['mobile'];
-            $olderinterested  = $_POST['olderinterested'];
-            $olderagetrial  = $_POST['olderagetrial'];
+            $shirtsize = $_POST['shirtsize'];
 
+            // Registration read input
+            $registrationdate = $_POST['registrationdate']; 
+            //
+            // ........................
+
+            // read only
+            class Competition
+            {   
+                var $competitionid;
+                var $competitionmanualid;
+                var $name;
+                var $year;
+                var $month;
+                var $type;
+            }
+
+            // update/ insert
+            class Registration
+            {   
+                var $competitionmanualid;
+                var $ffanumber;
+                var $registrationdate;
+                var $haveyouregistered;
+                var $agegroupdob;
+                var $igivepermission;
+            }
+
+            // update/ insert
             class Player
             {   
                 var $ffanumber;
@@ -360,23 +345,10 @@
                 var $lastname;
                 var $dateofbirth;
                 var $gender;
-                var $display;
-                var $fkagegroupid;
-                var $fkteamid;
-                var $trialagegroup;
-                var $trialopengirls;
-                var $haveyouregistered;
-                var $igivepermission;
-                var $BIBnumber;
                 var $emailaddress;
-                var $posBack;
-                var $posMidfield;
-                var $posAttack;
-                var $posKeeper;
                 var $agegroupdob;
                 var $mobile;
-                var $olderinterested;
-                var $olderagetrial;
+                var $shirtsize;
 
             }
 
@@ -389,27 +361,20 @@
                 $player->lastname = $lastname;
                 $player->dateofbirth = $dateofbirth;
                 $player->gender = $gender;
-                $player->trialagegroup = $trialagegroup;
                 $player->haveyouregistered = $haveyouregistered;
                 $player->emailaddress = $emailaddress;
-                $player->trialopengirls = $trialopengirls;
-
-                $player->posBack = $posBack;
-                $player->posMidfield =  $posMidfield;
-                $player->posAttack =  $posAttack;
-                $player->posKeeper =  $posKeeper;
-                $player->agegroupdob =  $agegroupdob;
                 $player->mobile =  $mobile;
-                $player->olderinterested =  $olderinterested;
-                $player->olderagetrial =  $olderagetrial;
+                $player->shirtsize =  $shirtsize;
 
-                $player->igivepermission = "Y";
-                $player->display = "Y";
-                $player->fkagegroupid = "NOTDEFINED";
-                $player->fkteamid = "NOTDEFINED";
-                $player->BIBnumber = "0";
+                $registration = new Registration();
+                $registration->igivepermission = "Y";
+                $registration->competitionmanualid = $competitionmanualid;
+                $registration->ffanumber = $ffanumber;
+                $registration->registrationdate = $registrationdate;
+                $registration->haveyouregistered = $haveyouregistered;
+                $registration->agegroupdob = $agegroupdob;
 
-                addplayer(  $player ); 
+                addplayerregistration( $player, $registration ); 
             }
 
             echo "<form method=post name=f1 action=''>";
@@ -418,8 +383,8 @@
             echo '<input type="text" name="ffanumber" id="ffanumber" required onchange="javascript:getplayerdetails()">';
             echo "<p/>";
 
-            echo "<p>Player Last Name:</p>";
-            echo '<input type="text" name="lastname" id="lastname" required>';
+            echo "<p>Player Surname:</p>";
+            echo '<input type="text" name="lastname" id="lastname" required">';
             echo "<p/>";
 
             echo "<p>Player First Name:</p>";
@@ -439,60 +404,22 @@
             echo "<input type='date' name='dateofbirth' id='dateofbirth' required onchange='setagegroupdob(this.value)'>";
             echo "<p/>";
 
+            echo "<p>Shirt Size (umbro):</p> ";
+            echo "<select name='shirtsize' id='shirtsize' required'>";
+            echo '            <Option value="">Select...</option>';
+            echo '            <Option value="Size8">Size 8</option>';
+            echo '            <Option value="Size10">Size 10</option>';
+            echo '            <Option value="Size12">Size 12</option>';
+            echo '            <Option value="Size14">Size 14 Adult XS</option>';
+            echo '            <Option value="Size16">Size 16 Adult S</option>';
+            echo '            <Option value="AdultMedium">Adult Medium</option>';
+            echo '            <Option value="AdultLarge">Adult Large</option>';
+            echo "            </select>";
+            echo "<p/>";
+
+
             echo "<p>Age Group:</p> ";
             echo "<input type='text' name='agegroupdob' id='agegroupdob' readonly>";
-            echo "<p/>";
-
-            // echo "<p>Would like to try for an older age group?</p> ";
-            // echo "<select name='olderinterested' id='olderinterested' onchange='tryoldergroup(this.value)'>";
-            // echo '"      <Option value="">Select...</option>';
-            // echo '      <Option value="Y">Yes</option>';
-            // echo '      <Option value="N">No</option>';
-            // echo "</select>";
-            // echo "<p/>";
-
-
-            // <textarea name="Text1" cols="40" rows="5"></textarea>
-            // <textarea name="textarea" style="width:250px;height:150px;"></textarea>
-
-
-            echo "<p>Additional information regarding the trialling age group for player:</p> ";
-            echo "<input type='text' name='olderagetrial' id='olderagetrial' >";
-            echo "<p/>";
-
-            // truncates: not good yet.
-            // echo "<p>Additional information regarding the trialling age group for player:</p> ";
-            // echo "<textarea name='olderagetrial' id='olderagetrial' style='width:350px;height:150px;'></textarea>";
-            // echo "<p/>";
-
-
-            // echo "<p>Select Older Age Trial:</p>";
-            // echo "<select name='trialagegroup' id='trialagegroup'  disabled >";
-            // echo '            <Option value="">Select...</option>';
-            // echo '            <Option value="U10">U10</option>';
-            // echo '            <Option value="U11">U11</option>';
-            // echo '            <Option value="U12">U12</option>';
-            // echo '            <Option value="U13">U13</option>';
-            // echo '            <Option value="U14">U14</option>';
-            // echo '            <Option value="U15">U15</option>';
-            // echo '            <Option value="U16">U16</option>';
-            // echo '            <Option value="U17">U17</option>';
-            // echo '            <Option value="U18">U18</option>';
-            // echo '            </select>';
-            // echo '<p/>';
-
-            echo "<p>Preferred Position:</p>";
-            echo '<input type="checkbox" name="posBack" id="chk1"> Back  </input>';
-            echo '<input type="checkbox" name="posMidfield" id="chk2"> Midfield  </input>';
-            echo '<input type="checkbox" name="posAttack" id="chk3"> Attack  </input>';
-            echo '<input type="checkbox" name="posKeeper" id="chk4"> Goalkeeper </input>';
-            echo '<p/>';
-
-            echo '<p>Trials for Open or Girls:</p>';
-            echo "<select name='trialopengirls' id='trialopengirls' required onchange='checkgenderselection()'>";
-            echo '            <Option value="Open">Open</option>';
-            echo '            <Option value="Girls">Girls</option>';
-            echo "            </select>";
             echo "<p/>";
 
             echo "<p>Contact Email Address:</p> ";
@@ -501,10 +428,9 @@
 
             echo "<p>Contact Mobile Number:</p> ";
             echo '<input type="text" name="mobile" id="mobile" required>';
-            // echo '<input type="text" name="mobile" id="mobile" required pattern="[0-9]">';
             echo "<p/>";
         
-            echo "<p>Have you registered with myfootball for the upcoming season:</p>";
+            echo "<p>Have you registered with myfootball:</p>";
             echo "<select name='haveyouregistered' id='haveyouregistered' required>";
             echo '"      <Option value="">Select...</option>';
             echo '      <Option value="Y">Yes</option>';
@@ -516,8 +442,12 @@
 
             echo '<input type=submit value=Submit id="submit">';
 
-
-            function addplayer( $player )
+            /*
+            -----------------------------------------------------------------
+            Results Add Player
+            -----------------------------------------------------------------
+            */
+            function addplayerregistration( $player, $registration )
             {
                 echo '<H1>Results</H1>';
                 echo '<p/>';
@@ -528,7 +458,7 @@
                 echo 'Surname: '.$player->lastname;
                 echo '<p/>';
 
-                if ($player->haveyouregistered == "N")
+                if ($registration->haveyouregistered == "N")
                 {
                     echo("Important!!");
                     echo '<p/>';
@@ -545,69 +475,66 @@
 
                 $mysqli = new mysqli($db_hostname,$db_username,$db_password, $db_database);
 
-                    $sql =  "REPLACE INTO player 
-                    (
-                    ffanumber   
-                    , firstname  
-                    , lastname   
-                    , emailaddress 
-                    , dob   
-                    , trialagegroup 
-                    , gender 
-                    , display 
-                    , fkagegroupid
-                    , fkteamid
-                    , trialopengirls
-                    , haveyouregistered
-                    , igivepermission
-                    , BIBnumber
-                    , posBack
-                    , posMidfield
-                    , posAttack
-                    , posKeeper
-                    , agegroupdob
-                    , mobile
-                    , olderinterested 
-                    , olderagetrial 
-                    ) 
-                            VALUES ('" 
-                        .$player->ffanumber. 
-                    "','".$player->firstname. 
-                    "','".$player->lastname. 
-                    "','".$player->emailaddress. 
-                    "','".$player->dateofbirth. 
-                    "','".$player->trialagegroup. 
-                    "','".$player->gender. 
-                    "','".$player->display. 
-                    "','".$player->fkagegroupid. 
-                    "','".$player->fkteamid. 
-                    "','".$player->trialopengirls. 
-                    "','".$player->haveyouregistered. 
-                    "','".$player->igivepermission. 
-                    "','".$player->BIBnumber. 
-                    "','".$player->posBack. 
-                    "','".$player->posMidfield. 
-                    "','".$player->posAttack. 
-                    "','".$player->posKeeper. 
-                    "','".$player->agegroupdob. 
-                    "','".$player->mobile. 
-                    "','".$player->olderinterested. 
-                    "','".$player->olderagetrial. 
-                    "')";
+                /**
+                 * SET 
+                @FFANumber = "22222222",
+                @FirstName = "FirstName",
+                @LastName = "LastName",
+                @dateofbirth = "2010-01-01",
+                @emailaddress = "emailaddress",
+                @mobile = "mobile",
+                @shirtsize = "shirtsize",
+                @gender = "M";
+                        INSERT INTO playerdetails
+                            (FFANumber, FirstName, LastName, DOB, haveyouregistered, emailaddress, mobile, shirtsize, gender)
+                        VALUES
+                            (@FFANumber, @FirstName, @LastName, @dateofbirth, @haveyouregistered, @emailaddress, @mobile, @shirtsize, @gender)
+                        ON DUPLICATE KEY UPDATE
+                            FirstName = @FirstName,
+                            LastName = @LastName,
+                            DOB = @dateofbirth,
+                            emailaddress = @emailaddress,
+                            mobile = @mobile,
+                            shirtsize = @shirtsize,
+                            gender = @gender;
+                */
+
+                // Set up player details
+                //
+                $sql =                 
+                "
+                    SET @FFANumber = $player->ffanumber,
+                    @FirstName = $player->firstname,
+                    @LastName = $player->lastname,
+                    @dateofbirth = $player->dateofbirth,
+                    @emailaddress = $player->emailaddress,
+                    @mobile = $player->mobile,
+                    @shirtsize = $player->shirtsize,
+                    @gender = $player->gender;
+                    INSERT INTO playerdetails
+                        (FFANumber, FirstName, LastName, DOB, haveyouregistered, emailaddress, mobile, shirtsize, gender)
+                    VALUES
+                        (@FFANumber, @FirstName, @LastName, @dateofbirth, @haveyouregistered, @emailaddress, @mobile, @shirtsize, @gender)
+                    ON DUPLICATE KEY UPDATE
+                        FirstName = @FirstName,
+                        LastName = @LastName,
+                        DOB = @dateofbirth,
+                        emailaddress = @emailaddress,
+                        mobile = @mobile,
+                        shirtsize = @shirtsize,
+                        gender = @gender;
+
+                "; 
 
                 if ( 
                     $player->ffanumber== "" || 
                     $player->firstname == "" ||
                     $player->lastname == "" ||
-                    $player->emailaddress == "" ||
-                    $player->dateofbirth == "" || 	
-                    $player->agegroupdob == "" ||	
-                    $player->agegroupdob == "UNaN"  	
+                    $player->emailaddress == ""  	
                 )
                 {
                     // do nothing
-                    echo ' Please make sure details are entered correctly. </p>';
-                    echo ' The registration has not been submitted. </p>';
+                    echo ' fields empty </p>';
                     echo $sql;
                 }
                 else
@@ -621,11 +548,9 @@
 
                 $mysqli->close();
             }
+
+
             echo "</form>";
-
-
-
-
 
         ?>
     </body>

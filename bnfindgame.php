@@ -4,10 +4,11 @@
     */
     get_header();
 
-	$db_hostname = 'belnorth.com';
+	$db_hostname = 'localhost';
 	$db_username = 'belnorth_machado';
 	$db_password = 'M@ch@d)';
-	$db_database = 'belnorth_players';
+    $db_database = 'belnorth_players';
+    
     // Database Connection String
     $mysqli = new mysqli($db_hostname, $db_username, $db_password, $db_database);
 
@@ -49,14 +50,14 @@ if ($mysqli ->connect_errno) {
             function reload(form)
             {
                 var val=form.agegroupselected.options[form.agegroupselected.options.selectedIndex].value;
-                self.location='?page_id=1410&agegroupselected=' + val ;
+                self.location='?page_id=next-game-u5-u9&agegroupselected=' + val ;
             }
             
             function reload2(form)
             {
                 var val =form.agegroupselected.options[form.agegroupselected.options.selectedIndex].value;
                 var val2=form.teamselected.options[form.teamselected.options.selectedIndex].value;
-                self.location='?page_id=1410&agegroupselected=' + val + '&teamselected=' + val2;
+                self.location='?page_id=next-game-u5-u9&agegroupselected=' + val + '&teamselected=' + val2;
             }
             
         </script>        
@@ -77,7 +78,7 @@ if ($mysqli ->connect_errno) {
             // $sql_team="select fkagegroupid, idteam, name from team where showindropdown = 'Y' and fkagegroupid='"
             //     .$agegroupselected."' order by fkagegroupid, idteam";
 
-            $sql_team="select fkagegroupid, idteam, name from team where showindropdown = 'Y' and fkagegroupid like '%".$agegroupselected."%'  order by idteam";
+            $sql_team="select fkagegroupid, idteam, name from team where showindropdown = 'Y' and fkagegroupid like '".$agegroupselected."'  order by idteam";
 
             // $query_agegroup = mysqi_query($sql_agegroup, $con);
 
@@ -163,7 +164,7 @@ get_footer();
 function display($agegroupselected, $teamselected)
 {
         
-	$db_hostname = 'belnorth.com';
+	$db_hostname = 'localhost';
 	$db_username = 'belnorth_machado';
 	$db_password = 'M@ch@d)';
     $db_database = 'belnorth_players';
@@ -197,7 +198,7 @@ function display($agegroupselected, $teamselected)
                 WHERE 
                  ( game.fkhometeamid = '".$term."' OR game.fkawayteamid = '".$term."')
                 
-                   AND game.fkagegroupid like '%".$agegroupselected."%' 
+                   AND game.fkagegroupid like '".$agegroupselected."%' 
                    AND game.fkgroundplaceid = groundplace.idgroundplace 
                    AND game.fkroundid = round.idround 
                    AND game.fkfieldid = harrisonsfieldschema.fieldid
@@ -237,9 +238,13 @@ function display($agegroupselected, $teamselected)
             echo '<tr>';
             echo '   <td>Age group</td><th>'.$rowinner['fkagegroupid'].'</th>';
             echo '</tr>';
+
+            $displaydatein = $rowinner['rounddate'];
+            $displaydate = date("d/m/Y", strtotime($displaydatein));
             echo '<tr>';
-            echo '   <td>Next Game</td><th>'.$rowinner['rounddate'].'</th>';
+            echo '   <td>Date</td><th>'.$displaydate.'</th>';
             echo '</tr>';
+
             echo '<tr>';
             echo '   <td>Time</td><th>'.$rowinner['time'].'</th>';
             echo '</tr>';

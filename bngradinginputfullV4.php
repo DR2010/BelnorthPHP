@@ -599,15 +599,15 @@
                     $player->ffanumber== "" || 
                     $player->firstname == "" ||
                     $player->lastname == "" ||
-                    $player->emailaddress == "" ||
+                    $player->emailaddress == "" || 	  	
                     $player->dateofbirth == "" || 	
                     $player->agegroupdob == "" ||	
                     $player->agegroupdob == "UNaN"  	
+
                 )
                 {
                     // do nothing
-                    echo ' Please make sure details are entered correctly. </p>';
-                    echo ' The registration has not been submitted. </p>';
+                    echo ' fields empty </p>';
                     echo $sql;
                 }
                 else
